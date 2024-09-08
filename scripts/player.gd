@@ -20,6 +20,25 @@ func _physics_process(delta: float) -> void:
 	if direction:
 		velocity.x = direction * SPEED
 	else:
-		velocity.x = move_toward(velocity.x, 0, SPEED)
-
+		velocity.x = move_toward(velocity.x, 0, SPEED * 0.2)
+		
+	
+	if Input.is_action_pressed("float"):
+		#print_debug("floating")
+		var space_state = get_world_2d().direct_space_state
+		var rayResult = space_state.intersect_ray(PhysicsRayQueryParameters2D.create(global_position, global_position + Vector2(0, 200)))
+		if(!rayResult.is_empty()):
+			#print_debug("ray pos: " + str(rayResult.position))
+			var distance = global_position - rayResult.position
+			var forcePower: float = distance.y / -200
+			forcePower = 1 - easeOutQuad(forcePower)
+			#print_debug(forcePower)
+			var vel = -200 * forcePower
+			print_debug(vel)
+			velocity.y += (-200 * forcePower)
+	
+	
 	move_and_slide()
+
+func easeOutQuad(x: float) -> float:
+	return 1 - (1 - x) * (1 - x)
